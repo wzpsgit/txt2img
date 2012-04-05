@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QImageWriter>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,6 +46,7 @@ void MainWindow::setupActions()
 {
 	ui->toolBar->insertWidget(ui->action_font,ui->fontComboBox);
 	ui->toolBar->insertWidget(ui->action_fontSize,ui->fontSizeComboBox);
+	ui->toolBar->insertWidget(ui->action_letterSpacing,ui->letterSpacingSpinBox);
 
 	QFontDatabase db;
 	foreach(int size,db.standardSizes())
@@ -109,8 +111,7 @@ void MainWindow::on_fontComboBox_currentFontChanged(const QFont &font)
 	
 }
 void MainWindow::textBoxFontChanged(const QFont& font)
-{
-	
+{	
 	ui->fontComboBox->setCurrentIndex(ui->fontComboBox->findText(QFontInfo(font).family()));
 	ui->fontSizeComboBox->setCurrentIndex(ui->fontSizeComboBox->findText(QString::number(font.pointSize())));
 	ui->action_bold->setChecked(font.bold());
@@ -118,7 +119,8 @@ void MainWindow::textBoxFontChanged(const QFont& font)
 	ui->action_underline->setChecked(font.underline());
 	QFont::StyleStrategy ss = font.styleStrategy();
 	bool checked = (ss & QFont::PreferAntialias && !(ss & QFont::NoAntialias));
-	ui->checkBox->setChecked(checked);	
+	ui->checkBox->setChecked(checked);
+	ui->letterSpacingSpinBox->setValue(font.letterSpacing()==0? 1: font.letterSpacing()/100);
 	updateOutFilename();
 }
 
@@ -305,14 +307,11 @@ void MainWindow::save()
 	
 	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
 	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + ".tif"))
-		log_ << "couldn't write image" << std::endl;
-	
-	QList<QByteArray> formats = QImageWriter::supportedImageFormats();
-	logger& logr = log_;
-	std::for_each(formats.begin(),formats.end(),[&logr](const QByteArray& f)
 	{
-		logr << QString(f).toStdString() << std::endl;
-	});
+		QMessageBox::critical(this,"error","couldn't write image file, perhaps the format is not supported");
+		return;
+	}
+	
 	
 	std::for_each(boxes.begin(),boxes.end(),[&boxStream,&formatLine](const BoxBuilder::box& b)
 	{
@@ -340,6 +339,8 @@ void MainWindow::save()
 	});
 	boxOut.close();
 
+	QMessageBox::information(this,"info","image and box files are saved to " + folder);
+
 }
 
 void MainWindow::updateOutFilename()
@@ -350,4 +351,13 @@ void MainWindow::on_selectFolderButton_clicked()
 {
 	folder = QFileDialog::getExistingDirectory();
 	ui->folderLabel_->setText(folder);
+}
+
+void MainWindow::on_letterSpacingSpinBox_valueChanged(double arg1)
+{		
+	QTextCharFormat format;
+	QFont font = format.font();
+	font.setLetterSpacing(QFont::PercentageSpacing,arg1*100);
+	format.setFont(font);
+	mergeFormatOnWordOrSelection(format);
 }

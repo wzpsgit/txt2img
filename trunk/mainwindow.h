@@ -59,6 +59,8 @@ private slots:
 
     void on_selectFolderButton_clicked();
 
+    void on_letterSpacingSpinBox_valueChanged(double arg1);
+
 private:
 	logger log_;
     Ui::MainWindow *ui;

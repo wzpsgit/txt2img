@@ -1,0 +1,12 @@
+#summary high level details
+
+= Introduction =
+
+txt2img is a tool that helps in tesseract training process by generating images and box files from a formatted text.
+
+
+= Details =
+  * Language: *C++*
+  * GUI lib: *QT4.8*
+  * Images format: *tiff*
+  * Box format: *tesseract 3*, can be configured (see config.txt file in the project's root)

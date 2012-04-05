@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu 5. Apr 21:52:09 2012
+** Created: Fri 6. Apr 01:45:13 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -16,6 +16,7 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
+#include <QtGui/QDoubleSpinBox>
 #include <QtGui/QFontComboBox>
 #include <QtGui/QGridLayout>
 #include <QtGui/QHBoxLayout>
@@ -56,10 +57,9 @@ public:
     QAction *action_zoomout;
     QAction *action_nozoom;
     QAction *action_save;
+    QAction *action_letterSpacing;
     QWidget *centralWidget;
     QGridLayout *gridLayout_2;
-    QFontComboBox *fontComboBox;
-    QComboBox *fontSizeComboBox;
     QHBoxLayout *horizontalLayout_5;
     QVBoxLayout *verticalLayout;
     QTextEdit *textEdit;
@@ -87,6 +87,9 @@ public:
     QLineEdit *outFilenameLineEdit;
     QPushButton *selectFolderButton;
     QPushButton *pushButton;
+    QComboBox *fontSizeComboBox;
+    QFontComboBox *fontComboBox;
+    QDoubleSpinBox *letterSpacingSpinBox;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -189,23 +192,14 @@ public:
         QIcon icon15;
         icon15.addFile(QString::fromUtf8(":/:/images/filesave.png"), QSize(), QIcon::Normal, QIcon::Off);
         action_save->setIcon(icon15);
+        action_letterSpacing = new QAction(MainWindow);
+        action_letterSpacing->setObjectName(QString::fromUtf8("action_letterSpacing"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         gridLayout_2 = new QGridLayout(centralWidget);
         gridLayout_2->setSpacing(6);
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        fontComboBox = new QFontComboBox(centralWidget);
-        fontComboBox->setObjectName(QString::fromUtf8("fontComboBox"));
-
-        gridLayout_2->addWidget(fontComboBox, 0, 0, 1, 1);
-
-        fontSizeComboBox = new QComboBox(centralWidget);
-        fontSizeComboBox->setObjectName(QString::fromUtf8("fontSizeComboBox"));
-        fontSizeComboBox->setEditable(true);
-
-        gridLayout_2->addWidget(fontSizeComboBox, 0, 1, 1, 1);
-
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setSpacing(6);
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
@@ -370,14 +364,29 @@ public:
         horizontalLayout_5->addLayout(verticalLayout_4);
 
 
-        gridLayout_2->addLayout(horizontalLayout_5, 1, 0, 1, 2);
+        gridLayout_2->addLayout(horizontalLayout_5, 3, 0, 1, 2);
+
+        fontSizeComboBox = new QComboBox(centralWidget);
+        fontSizeComboBox->setObjectName(QString::fromUtf8("fontSizeComboBox"));
+        fontSizeComboBox->setEditable(true);
+
+        gridLayout_2->addWidget(fontSizeComboBox, 2, 1, 1, 1);
+
+        fontComboBox = new QFontComboBox(centralWidget);
+        fontComboBox->setObjectName(QString::fromUtf8("fontComboBox"));
+
+        gridLayout_2->addWidget(fontComboBox, 2, 0, 1, 1);
+
+        letterSpacingSpinBox = new QDoubleSpinBox(centralWidget);
+        letterSpacingSpinBox->setObjectName(QString::fromUtf8("letterSpacingSpinBox"));
+        letterSpacingSpinBox->setMinimum(0);
+        letterSpacingSpinBox->setMaximum(10);
+        letterSpacingSpinBox->setSingleStep(0.1);
+        letterSpacingSpinBox->setValue(1);
+
+        gridLayout_2->addWidget(letterSpacingSpinBox, 1, 1, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
-        fontComboBox->raise();
-        fontSizeComboBox->raise();
-        splitter->raise();
-        label_3->raise();
-        folderLabel_->raise();
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 732, 21));
@@ -405,6 +414,8 @@ public:
         toolBar->addAction(action_font);
         toolBar->addSeparator();
         toolBar->addAction(action_fontSize);
+        toolBar->addSeparator();
+        toolBar->addAction(action_letterSpacing);
         toolBar->addSeparator();
         toolBar->addAction(action_bold);
         toolBar->addAction(action_italic);
@@ -435,7 +446,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "txt2img", 0, QApplication::UnicodeUTF8));
         action_bold->setText(QApplication::translate("MainWindow", "&bold", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         action_bold->setToolTip(QApplication::translate("MainWindow", "Bold", 0, QApplication::UnicodeUTF8));
@@ -523,6 +534,10 @@ public:
         action_save->setToolTip(QApplication::translate("MainWindow", "Save image and box", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         action_save->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0, QApplication::UnicodeUTF8));
+        action_letterSpacing->setText(QString());
+#ifndef QT_NO_TOOLTIP
+        action_letterSpacing->setToolTip(QApplication::translate("MainWindow", "letter spacing", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         checkBox->setText(QApplication::translate("MainWindow", "use anti-aliasing", 0, QApplication::UnicodeUTF8));
         genImgButton->setText(QApplication::translate("MainWindow", "Generate image", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Output image", 0, QApplication::UnicodeUTF8));

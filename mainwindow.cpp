@@ -57,6 +57,7 @@ void MainWindow::setupActions()
 	foreach(int size,db.standardSizes())
 		ui->fontSizeComboBox->addItem(QString::number(size));
 	
+	
 	textAlignGroup.addAction(ui->action_justify);
 	textAlignGroup.addAction(ui->action_left);
 	textAlignGroup.addAction(ui->action_right);
@@ -88,8 +89,20 @@ void MainWindow::setupActions()
 
 	 ui->action_undo->setEnabled(ui->textEdit->document()->isUndoAvailable());
      ui->action_redo->setEnabled(ui->textEdit->document()->isRedoAvailable());  
-
+	 
+	 int fontSize = ui->textEdit->currentFont().pointSize();
+	 ui->fontSizeComboBox->setEditText(QString::number(fontSize));
 	 updateOutFilename();
+
+	QList<QByteArray> formats = QImageWriter::supportedImageFormats();
+	QComboBox *formatsCombo = ui->imgFormatcomboBox;
+	std::for_each(formats.begin(),formats.end(),[formatsCombo](const QByteArray& ba)
+	{
+		formatsCombo->addItem(ba);		
+		if(ba=="png")
+			formatsCombo->setCurrentIndex(formatsCombo->count()-1);
+	});
+
 
 }
 
@@ -353,7 +366,7 @@ void MainWindow::save()
 	});
 	boxOut.close();
 
-	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + ".tif"))
+	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
 	{
 		QList<QByteArray> formats = QImageWriter::supportedImageFormats();
 		QString supportedFormats;

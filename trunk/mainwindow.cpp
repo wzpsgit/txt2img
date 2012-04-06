@@ -20,7 +20,7 @@
 #include <QTextStream>
 #include <QImageWriter>
 #include <QMessageBox>
-
+#include <QTextCodec>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
 	log_(std::cout),
@@ -294,17 +294,29 @@ void MainWindow::save()
 {	
 	
 	QFile boxLineFormat("./config.txt");
-	if(!boxLineFormat.open(QFile::ReadOnly))
-		throw std::runtime_error("cannot open box line format config file");
-	QString formatLine = boxLineFormat.readLine();
+	if(!boxLineFormat.open(QFile::ReadOnly|QFile::Text))
+	{
+		QMessageBox::critical(this,"error","cannot open box line format config file");
+		return;
 
+	}
+	QTextStream boxLineFormatStream(&boxLineFormat);
+	boxLineFormatStream.setCodec(QTextCodec::codecForName("UTF-8"));
+	QString formatLine = boxLineFormatStream.readLine();
+	
 
 	QFile boxOut(QString(folder + "/" + ui->outFilenameLineEdit->text() + ".box"));
-	if(!boxOut.open(QFile::WriteOnly))
-		throw std::runtime_error("cannot open box output file for write");
-
+	if(!boxOut.open(QFile::WriteOnly|QFile::Text))
+	{
+		QMessageBox::critical(this,"error","cannot open box output file for write");
+		return;
+	}
+	
 	QTextStream boxStream(&boxOut);
 	
+	boxStream.setCodec(QTextCodec::codecForName("UTF-8"));
+
+
 	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
 	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + ".tif"))
 	{
@@ -324,7 +336,8 @@ void MainWindow::save()
 		QString height = QString::number(b.boundingRect.height());
 		QString boxOutLine = formatLine;
 		
-		boxOutLine.replace(QString("$CHAR"),QString(b.character));
+		
+		boxOutLine.replace(QString("$CHAR"),b.character);
 		
 		boxOutLine.replace(QString("$LEFT"),left);
 		boxOutLine.replace(QString("$TOP"),top);
@@ -334,8 +347,10 @@ void MainWindow::save()
 
 		boxOutLine.replace(QString("$WIDTH"),width);
 		boxOutLine.replace(QString("$HEIGHT"),height);
-
-		boxStream << boxOutLine << "\n";
+		//wchar_t uc = b.character.unicode();
+		//boxStream << b.character << QString::fromUtf16(L"\n");
+		//std::cout << "vvvv" << std::endl;
+		boxStream << boxOutLine << QString::fromUtf8("\n");
 	});
 	boxOut.close();
 

@@ -32,14 +32,14 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 			QVector<uint> blockTextIndices(blockText_.length());
 			int blockTextIndicesSize  = blockTextIndices.size();
 			bool success = rawFont.glyphIndexesForChars(blockText_.begin(),blockText_.length(),blockTextIndices.begin(),&blockTextIndicesSize);
-			std::map<uint,wchar_t> glyphIndicesToChars;
+			std::map<uint,QChar> glyphIndicesToChars;
 			std::wstring blockTextStdw = blockText_.toStdWString();
 			// build index for acessing chars in text, since glyphs order may not correspond chars order in text
-			for(int i = 0; i < blockTextIndices.size(); ++i)
-				glyphIndicesToChars[blockTextIndices[i] ] = blockTextStdw.at(i);				
+			for(int i = 0; i < blockTextIndices.size(); ++i)				
+				glyphIndicesToChars[blockTextIndices[i] ] = blockText_.at(i);				
 
 
-			std::wcout << "processing \" "<<  glyphIndicesToChars[*ixIt] << " \"... " << std::endl;
+			std::wcout << "processing \" "<<  QString(glyphIndicesToChars[*ixIt]).toStdWString() << " \"... " << std::endl;
 				
 			log_ << "glyphBoundingRect = (" << glyphBoundingRect.x() << "," << glyphBoundingRect.y() <<
 				"," << glyphBoundingRect.width() << "," << glyphBoundingRect.height()  << ")" << std::endl;

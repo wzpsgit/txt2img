@@ -44,9 +44,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::setupActions()
 {
-	ui->toolBar->insertWidget(ui->action_font,ui->fontComboBox);
-	ui->toolBar->insertWidget(ui->action_fontSize,ui->fontSizeComboBox);
-	ui->toolBar->insertWidget(ui->action_letterSpacing,ui->letterSpacingSpinBox);
+
+	ui->toolBar->insertWidget(ui->action_bold,ui->fontComboBox);
+	ui->toolBar->insertSeparator(ui->action_bold);
+	ui->toolBar->insertWidget(ui->action_bold,ui->fontSizeComboBox);
+	ui->toolBar->insertSeparator(ui->action_bold);
+	ui->toolBar->insertWidget(ui->action_bold,ui->letterSpacingSpinBox);
+	ui->toolBar->insertSeparator(ui->action_bold);
+	
 
 	QFontDatabase db;
 	foreach(int size,db.standardSizes())
@@ -163,7 +168,7 @@ void MainWindow::textSize(QString size)
 	qreal pointSize = size.toFloat(&ok);
 	if(ok)
 	{
-		QTextCharFormat format;
+		QTextCharFormat format = ui->textEdit->currentCharFormat();
 		format.setFontPointSize(pointSize);
 		mergeFormatOnWordOrSelection(format);
 	}
@@ -318,13 +323,7 @@ void MainWindow::save()
 
 
 	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
-	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + ".tif"))
-	{
-		QMessageBox::critical(this,"error","couldn't write image file, perhaps the format is not supported");
-		return;
-	}
-	
-	
+		
 	std::for_each(boxes.begin(),boxes.end(),[&boxStream,&formatLine](const BoxBuilder::box& b)
 	{
 		QString left = QString::number(b.boundingRect.left());
@@ -354,6 +353,18 @@ void MainWindow::save()
 	});
 	boxOut.close();
 
+	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + ".tif"))
+	{
+		QList<QByteArray> formats = QImageWriter::supportedImageFormats();
+		QString supportedFormats;
+		std::for_each(formats.begin(),formats.end(),[&supportedFormats](const QByteArray& ba)
+		{
+			supportedFormats += ba + ",";
+		});
+		supportedFormats.replace(QRegExp(",$"),"");
+		QMessageBox::critical(this,"error","couldn't write image file, perhaps the format is not supported. Currently supported: " + supportedFormats);
+		return;
+	}
 	QMessageBox::information(this,"info","image and box files are saved to " + folder);
 
 }
@@ -370,7 +381,7 @@ void MainWindow::on_selectFolderButton_clicked()
 
 void MainWindow::on_letterSpacingSpinBox_valueChanged(double arg1)
 {		
-	QTextCharFormat format;
+	QTextCharFormat format = ui->textEdit->currentCharFormat();;
 	QFont font = format.font();
 	font.setLetterSpacing(QFont::PercentageSpacing,arg1*100);
 	format.setFont(font);

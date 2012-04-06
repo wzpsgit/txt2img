@@ -12,12 +12,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    boxbuilder.cpp
+        boxbuilder.cpp
 
 HEADERS  += mainwindow.h \
-    setupdialog.h \
-    boxbuilder.h \
-    log.h
+        boxbuilder.h \
+        log.h
 
 FORMS    += mainwindow.ui
 
@@ -26,3 +25,10 @@ RESOURCES += \
 
 OTHER_FILES += \
     textbold.png
+
+QMAKE_CXXFLAGS += -std=c++0x
+OBJECTS_DIR += GeneratedFiles
+MOC_DIR += GeneratedFiles
+UI_DIR += GeneratedFiles
+RCC_DIR += GeneratedFiles
+

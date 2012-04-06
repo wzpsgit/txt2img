@@ -3,13 +3,14 @@
 #include <QTextDocument>
 #include <QGlyphRun>
 #include <QPen>
+#include <QChar>
 #include "log.h"
 class BoxBuilder
 {
 public:
 	struct box
 	{
-		box(wchar_t character,const QRect& boundingRect)
+		box(QChar character,const QRect& boundingRect)
 			:character(character),
 			boundingRect(boundingRect)
 		{}
@@ -20,7 +21,7 @@ public:
 
 		{}
 		
-		wchar_t character;
+		QChar character;
 		QRect boundingRect;
 	};	
 	

@@ -392,7 +392,9 @@ void MainWindow::saveBoxAndImage()
 	imageToWrite.setDotsPerMeterX(dpm);
 	imageToWrite.setDotsPerMeterY(dpm);	
 	//if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
-	if(!imageToWrite.save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
+	QString imageFileName = folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText();
+	imageFileName.replace(QRegExp("\\s+"),"_");
+	if(!imageToWrite.save(imageFileName))
 	{
 		QList<QByteArray> formats = QImageWriter::supportedImageFormats();
 		QString supportedFormats;

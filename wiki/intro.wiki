@@ -12,4 +12,4 @@ txt2img is a tool that helps in tesseract training process by generating images 
   * Box format: *tesseract 3*, can be configured (see config.txt file in the project's root)
 
 screenshot:
-http://txt2img.googlecode.com/files/txt2img0.1a.png
+http://txt2img.googlecode.com/files/txt2img0.2a.png

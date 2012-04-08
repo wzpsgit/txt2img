@@ -332,7 +332,6 @@ void MainWindow::on_checkBox_toggled(bool checked)
 
 void MainWindow::saveBoxAndImage()
 {	
-	
 	QFile boxLineFormat("./config.txt");
 	if(!boxLineFormat.open(QFile::ReadOnly|QFile::Text))
 	{
@@ -344,8 +343,9 @@ void MainWindow::saveBoxAndImage()
 	boxLineFormatStream.setCodec(QTextCodec::codecForName("UTF-8"));
 	QString formatLine = boxLineFormatStream.readLine();
 	
-
-	QFile boxOut(QString(folder + "/" + ui->outFilenameLineEdit->text() + ".box"));
+	QString boxFileName = QString(folder + "/" + ui->outFilenameLineEdit->text() + ".box");
+	boxFileName.replace(QRegExp("\\s+"),"_");
+	QFile boxOut(boxFileName);
 	if(!boxOut.open(QFile::WriteOnly|QFile::Text))
 	{
 		QMessageBox::critical(this,"error","cannot open box output file for write");

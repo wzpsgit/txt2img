@@ -32,3 +32,4 @@ MOC_DIR += GeneratedFiles
 UI_DIR += GeneratedFiles
 RCC_DIR += GeneratedFiles
 
+INCLUDEPATH += GeneratedFiles

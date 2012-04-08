@@ -8,7 +8,7 @@
 #include <QMutex>
 #include <QTextFragment>
 #include <QActionGroup>
-
+#include <QFileInfo>
 
 #include "boxbuilder.h"
 
@@ -28,8 +28,7 @@ public:
     ~MainWindow();
     
 	
-private slots:    
-
+private slots:
     void on_fontComboBox_currentFontChanged(const QFont &f);
 
     void on_imgSizeSetButton_clicked();
@@ -53,13 +52,20 @@ private slots:
 	void zoomout();
 	void cancelZoom();
 
-	void save();
+	void saveBoxAndImage();
 
     void on_checkBox_toggled(bool checked);
 
     void on_selectFolderButton_clicked();
 
     void on_letterSpacingSpinBox_valueChanged(double arg1);
+
+	void textOpen();
+	void textNew();
+	void textSave();
+	void textSaveAs();
+
+	void textDocModificationChanged(bool changed);
 
 private:
 	logger log_;
@@ -71,9 +77,10 @@ private:
 	BoxBuilder boxBuilder;
 
 	double imageScaleFactor;
-
 	
-
+	QFileInfo textDocFileInfo;	
+	static const unsigned imageDPIs[];
+	
 	void setupActions();
 
 	void mergeFormatOnWordOrSelection(const QTextCharFormat& format);
@@ -84,6 +91,10 @@ private:
 	void textBoxFontChanged(const QFont& font);
 	void alignmentChanged(Qt::Alignment a);
 	void updateOutFilename();
+	QString getWindowTitle() const;
+	void updateWindowTitle();
+
+	void saveTextDoc(const QString& fileName);
 };
 
 

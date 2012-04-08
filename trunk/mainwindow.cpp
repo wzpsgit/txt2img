@@ -21,17 +21,20 @@
 #include <QImageWriter>
 #include <QMessageBox>
 #include <QTextCodec>
+#include <QTextDocumentWriter> 
+
+const unsigned MainWindow::imageDPIs[] = {96,300,600};
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
 	log_(std::cout),
     ui(new Ui::MainWindow),
 	folder("."),
+	textAlignGroup(this),
 	pixmapSize(1024,768),
 	pixmapBuf(pixmapSize),
-	textAlignGroup(this),
-	imageScaleFactor(1.),
-	boxBuilder(log_)
-
+	boxBuilder(log_),
+	imageScaleFactor(1.)	
 {
 	ui->setupUi(this);
 	QApplication::addLibraryPath("./imageformats");
@@ -44,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::setupActions()
 {
-
 	ui->toolBar->insertWidget(ui->action_bold,ui->fontComboBox);
 	ui->toolBar->insertSeparator(ui->action_bold);
 	ui->toolBar->insertWidget(ui->action_bold,ui->fontSizeComboBox);
@@ -78,17 +80,19 @@ void MainWindow::setupActions()
 
 
 	
-     connect(ui->textEdit->document(), SIGNAL(undoAvailable(bool)),
-             ui->action_undo, SLOT(setEnabled(bool)));
-     connect(ui->textEdit->document(), SIGNAL(redoAvailable(bool)),
-             ui->action_redo, SLOT(setEnabled(bool)));
+  //   connect(ui->textEdit->document(), SIGNAL(undoAvailable(bool)),
+  //           ui->action_undo, SLOT(setEnabled(bool)));
+  //   connect(ui->textEdit->document(), SIGNAL(redoAvailable(bool)),
+  //           ui->action_redo, SLOT(setEnabled(bool)));
 
-	 connect(ui->action_undo, SIGNAL(triggered()), ui->textEdit, SLOT(undo()));
-     connect(ui->action_redo, SIGNAL(triggered()), ui->textEdit, SLOT(redo()));
+	 //connect(ui->action_undo, SIGNAL(triggered()), ui->textEdit, SLOT(undo()));
+  //   connect(ui->action_redo, SIGNAL(triggered()), ui->textEdit, SLOT(redo()));
 
 
-	 ui->action_undo->setEnabled(ui->textEdit->document()->isUndoAvailable());
-     ui->action_redo->setEnabled(ui->textEdit->document()->isRedoAvailable());  
+	 //ui->action_undo->setEnabled(ui->textEdit->document()->isUndoAvailable());
+  //   ui->action_redo->setEnabled(ui->textEdit->document()->isRedoAvailable());  
+
+	connect(ui->textEdit->document(),SIGNAL(modificationChanged(bool)),this,SLOT(textDocModificationChanged(bool)));
 	 
 	 int fontSize = ui->textEdit->currentFont().pointSize();
 	 ui->fontSizeComboBox->setEditText(QString::number(fontSize));
@@ -103,6 +107,12 @@ void MainWindow::setupActions()
 			formatsCombo->setCurrentIndex(formatsCombo->count()-1);
 	});
 
+	for(size_t i = 0; i < 3; ++i)
+	{
+		ui->imageDPIComboBox->addItem(QString::number(imageDPIs[i]));
+	}
+
+	updateWindowTitle();
 
 }
 
@@ -152,6 +162,8 @@ void MainWindow::on_imgSizeSetButton_clicked()
 	if(!ok) return;
 	pixmapSize.setWidth(width);
 	pixmapSize.setHeight(height);
+	boxBuilder.clearBoxes();
+	scaleImage(1);
 }
 
 void MainWindow::textBold()
@@ -194,7 +206,7 @@ void MainWindow::showImage()
 	painter.setPen(Qt::red);
 	QPixmap pm = boxBuilder.pixmap().scaled(pixmapBuf.size());
 	painter.drawPixmap(0,0,pm);
-
+	
 	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();	
 	for(std::list<BoxBuilder::box>::const_iterator boxIt = boxes.begin(); boxIt != boxes.end(); ++boxIt)
 	{
@@ -207,6 +219,16 @@ void MainWindow::showImage()
 
 		//log_ << "scaledRect = (" << scaledRect.x() << "," << scaledRect.y() <<
 		//		"," << scaledRect.width() << "," << scaledRect.height() << ")" << std::endl;
+		double histValue = static_cast<double>(boxBuilder.histValue(boxIt->character))/boxBuilder.maxHistValue();
+		if(histValue < 0)
+			painter.setPen(Qt::black);
+		else if(histValue < .25)
+			painter.setPen(Qt::yellow);
+		else if(histValue <.5)
+			painter.setPen(Qt::cyan);
+		else if(histValue < .75)
+			painter.setPen(Qt::blue);
+		else painter.setPen(Qt::green);
 		
 		painter.drawRect(scaledRect);
 	}
@@ -308,7 +330,7 @@ void MainWindow::on_checkBox_toggled(bool checked)
 	ui->textEdit->update();
 }
 
-void MainWindow::save()
+void MainWindow::saveBoxAndImage()
 {	
 	
 	QFile boxLineFormat("./config.txt");
@@ -365,8 +387,12 @@ void MainWindow::save()
 		boxStream << boxOutLine << QString::fromUtf8("\n");
 	});
 	boxOut.close();
-
-	if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
+	QImage imageToWrite = boxBuilder.pixmap().toImage();
+	qreal dpm = 1000./25.4*ui->imageDPIComboBox->currentText().toInt();
+	imageToWrite.setDotsPerMeterX(dpm);
+	imageToWrite.setDotsPerMeterY(dpm);	
+	//if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
+	if(!imageToWrite.save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
 	{
 		QList<QByteArray> formats = QImageWriter::supportedImageFormats();
 		QString supportedFormats;
@@ -399,4 +425,82 @@ void MainWindow::on_letterSpacingSpinBox_valueChanged(double arg1)
 	font.setLetterSpacing(QFont::PercentageSpacing,arg1*100);
 	format.setFont(font);
 	mergeFormatOnWordOrSelection(format);
+}
+
+
+void MainWindow::textOpen()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,"select a html file to open",".","HTML File (*.html)");
+	if(fileName.length()==0) return;
+	textDocFileInfo.setFile(fileName);
+	QFile inputFile(fileName);
+	if(!inputFile.open(QIODevice::ReadOnly|QIODevice::Text))
+	{
+		QMessageBox::critical(this,"error","cannot read " + fileName);
+		return;
+	}
+	QTextStream html(&inputFile);
+	QString htmlContents = html.readAll();
+	ui->textEdit->clear();
+	ui->textEdit->insertHtml(htmlContents);
+	ui->textEdit->document()->setModified(false);
+	
+}
+
+void MainWindow::textNew()
+{
+	textDocFileInfo = QFileInfo();
+	ui->textEdit->clear();	
+	updateWindowTitle();
+}
+
+void MainWindow::textSaveAs()
+{
+	QString fileName = QFileDialog::getSaveFileName(this,"select a file name to save text",".","HTML files (*html)");
+	if(fileName.length()==0) return;
+	if(!fileName.endsWith(".html"))
+		fileName += ".html";
+	
+	textDocFileInfo.setFile(fileName);
+	saveTextDoc(fileName);	
+	updateWindowTitle();
+}
+
+void MainWindow::textSave()
+{
+	if(textDocFileInfo.fileName().length()==0)
+		return textSaveAs();
+	
+	saveTextDoc(textDocFileInfo.absoluteFilePath());
+}
+
+
+void MainWindow::saveTextDoc(const QString& fileName)
+{
+	QTextDocumentWriter writer(fileName,"HTML");
+	writer.setCodec(QTextCodec::codecForName("UTF-8"));
+	writer.write(ui->textEdit->document());
+	ui->textEdit->document()->setModified(false);
+}
+
+void MainWindow::textDocModificationChanged(bool changed)
+{
+	if(changed)
+		setWindowTitle(getWindowTitle() + "*");
+	else
+		setWindowTitle(getWindowTitle());
+}
+
+
+QString MainWindow::getWindowTitle() const
+{
+	QString windowTitle = "txt2img :: ";
+	QString fileName = textDocFileInfo.fileName();
+	windowTitle += fileName.length()==0 ? "untitled" : fileName;
+	return windowTitle;
+}
+
+void MainWindow::updateWindowTitle()
+{	
+	setWindowTitle(getWindowTitle());
 }

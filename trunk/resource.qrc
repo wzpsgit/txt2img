@@ -16,5 +16,7 @@
         <file>zoomin.png</file>
         <file>zoomout.png</file>
         <file>nozoom.png</file>
+        <file>filenew.png</file>
+        <file>fileopen.png</file>
     </qresource>
 </RCC>

@@ -57,7 +57,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="0" rowspan="2">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTextEdit" name="textEdit">
@@ -94,6 +94,25 @@
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Output image</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_9">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>resolution(DPI):</string>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="imageDPIComboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
         <widget class="QLabel" name="label_8">
@@ -139,7 +158,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="imgYEdit">
+         <widget class="QLineEdit" name="imgXEdit">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -165,7 +184,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="imgXEdit">
+         <widget class="QLineEdit" name="imgYEdit">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -199,55 +218,51 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QScrollArea" name="scrollArea">
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="widgetResizable">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>100</width>
-             <height>100</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>100</width>
+           <height>100</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -327,6 +342,9 @@
       </item>
      </layout>
     </item>
+    <item row="3" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -346,7 +364,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_new"/>
+   <addaction name="action_open"/>
    <addaction name="action_save"/>
+   <addaction name="action_saveAs"/>
    <addaction name="separator"/>
    <addaction name="action_copy"/>
    <addaction name="action_cut"/>
@@ -432,22 +453,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
-   </property>
-  </action>
-  <action name="action_font">
-   <property name="text">
-    <string/>
-   </property>
-   <property name="toolTip">
-    <string>Font</string>
-   </property>
-  </action>
-  <action name="action_fontSize">
-   <property name="text">
-    <string/>
-   </property>
-   <property name="toolTip">
-    <string>Font size</string>
    </property>
   </action>
   <action name="action_justify">
@@ -648,18 +653,46 @@
     <string>&amp;save</string>
    </property>
    <property name="toolTip">
-    <string>Save image and box</string>
+    <string>Save text document</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="action_letterSpacing">
+  <action name="action_open">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/:/images/fileopen.png</normaloff>:/:/images/fileopen.png</iconset>
+   </property>
    <property name="text">
-    <string/>
+    <string>&amp;open</string>
    </property>
    <property name="toolTip">
-    <string>letter spacing</string>
+    <string>Open text file</string>
+   </property>
+  </action>
+  <action name="action_new">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/:/images/filenew.png</normaloff>:/:/images/filenew.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;new</string>
+   </property>
+   <property name="toolTip">
+    <string>Crete a new text document</string>
+   </property>
+  </action>
+  <action name="action_saveAs">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/:/images/filesave.png</normaloff>:/:/images/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;saveAs</string>
+   </property>
+   <property name="toolTip">
+    <string>Save text document as..</string>
    </property>
   </action>
  </widget>
@@ -781,10 +814,90 @@
    </hints>
   </connection>
   <connection>
-   <sender>action_save</sender>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveBoxAndImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>607</x>
+     <y>342</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_undo</sender>
+   <signal>triggered()</signal>
+   <receiver>textEdit</receiver>
+   <slot>undo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_redo</sender>
+   <signal>triggered()</signal>
+   <receiver>textEdit</receiver>
+   <slot>redo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>textEdit</sender>
+   <signal>undoAvailable(bool)</signal>
+   <receiver>action_undo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>textEdit</sender>
+   <signal>redoAvailable(bool)</signal>
+   <receiver>action_redo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_open</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>save()</slot>
+   <slot>textOpen()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -797,14 +910,46 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
+   <sender>action_save</sender>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>save()</slot>
+   <slot>textSave()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>607</x>
-     <y>342</y>
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_new</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>textNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_saveAs</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>textSaveAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
@@ -822,6 +967,13 @@
   <slot>zoomin()</slot>
   <slot>zoomout()</slot>
   <slot>cancelZoom()</slot>
-  <slot>save()</slot>
+  <slot>saveBoxAndImage()</slot>
+  <slot>textRedo()</slot>
+  <slot>textUndo()</slot>
+  <slot>textOpen()</slot>
+  <slot>textSave()</slot>
+  <slot>textNew()</slot>
+  <slot>textDocModificationChanged(bool)</slot>
+  <slot>textSaveAs()</slot>
  </slots>
 </ui>

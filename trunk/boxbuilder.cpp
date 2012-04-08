@@ -31,16 +31,23 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 
 			QVector<uint> blockTextIndices(blockText_.length());
 			int blockTextIndicesSize  = blockTextIndices.size();
-			bool success = rawFont.glyphIndexesForChars(blockText_.begin(),blockText_.length(),blockTextIndices.begin(),&blockTextIndicesSize);
+			rawFont.glyphIndexesForChars(blockText_.begin(),blockText_.length(),blockTextIndices.begin(),&blockTextIndicesSize);
 			std::map<uint,QChar> glyphIndicesToChars;
 			std::wstring blockTextStdw = blockText_.toStdWString();
 			// build index for acessing chars in text, since glyphs order may not correspond chars order in text
 			for(int i = 0; i < blockTextIndices.size(); ++i)				
 				glyphIndicesToChars[blockTextIndices[i] ] = blockText_.at(i);				
 
-
-			std::wcout << "processing \" "<<  QString(glyphIndicesToChars[*ixIt]).toStdWString() << " \"... " << std::endl;
-				
+			QChar currentChar = glyphIndicesToChars[*ixIt];
+			unsigned histValue = 0;
+			if(histogram.find(currentChar) == histogram.end())
+				histogram[currentChar] = 0;
+			else histValue = ++histogram[currentChar];
+			maxHistogramValue = std::max(maxHistogramValue,histValue);
+			
+			std::wcout << "processing \" "<<  QString(currentChar).toStdWString() << " \"... " << std::endl;
+			
+			
 			log_ << "glyphBoundingRect = (" << glyphBoundingRect.x() << "," << glyphBoundingRect.y() <<
 				"," << glyphBoundingRect.width() << "," << glyphBoundingRect.height()  << ")" << std::endl;
 				
@@ -77,7 +84,12 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 			++posit;				
 		}
 }
-
+void BoxBuilder::clearBoxes()
+{
+	boxes_.clear();
+	histogram.clear();
+	maxHistogramValue = 0;
+}
 void BoxBuilder::build(const QTextDocument* doc,const QSize& pixmapSize, const QColor& glyphColor)
 {
 	pixmap_ = QPixmap(pixmapSize);
@@ -95,7 +107,7 @@ void BoxBuilder::build(const QTextDocument* doc,const QSize& pixmapSize, const Q
 			
 		QList<QGlyphRun> glyphs = tl->glyphRuns();		
 		
-		size_t glyphsNum = 0;
+		int glyphsNum = 0;
 		std::for_each(glyphs.begin(),glyphs.end(),[&glyphsNum](QGlyphRun grun)
 		{
 			glyphsNum += grun.glyphIndexes().size();

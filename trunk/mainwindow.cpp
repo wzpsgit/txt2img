@@ -23,6 +23,8 @@
 #include <QTextCodec>
 #include <QTextDocumentWriter> 
 
+#include "CharTableReader.h"
+
 const unsigned MainWindow::imageDPIs[] = {96,300,600};
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -206,7 +208,20 @@ void MainWindow::showImage()
 	painter.setPen(Qt::red);
 	QPixmap pm = boxBuilder.pixmap().scaled(pixmapBuf.size());
 	painter.drawPixmap(0,0,pm);
-	
+
+	QString fontName = ui->fontComboBox->currentText();
+	QString charTableFileName = fontName.replace(QRegExp("\\s+"),".");
+	charTableFileName += ".tbl";
+
+	bool charMapAvailable = false;
+	std::map<uint,std::pair<QColor,QString> > charMap;
+	if(QFile(charTableFileName).exists())
+	{
+		CharTableReader ctr(charTableFileName);
+		charMap =  ctr.read();
+		charMapAvailable = true;
+	}
+
 	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();	
 	for(std::list<BoxBuilder::box>::const_iterator boxIt = boxes.begin(); boxIt != boxes.end(); ++boxIt)
 	{
@@ -219,16 +234,31 @@ void MainWindow::showImage()
 
 		//log_ << "scaledRect = (" << scaledRect.x() << "," << scaledRect.y() <<
 		//		"," << scaledRect.width() << "," << scaledRect.height() << ")" << std::endl;
-		double histValue = static_cast<double>(boxBuilder.histValue(boxIt->character))/boxBuilder.maxHistValue();
-		if(histValue < 0)
-			painter.setPen(Qt::black);
-		else if(histValue < .25)
-			painter.setPen(Qt::yellow);
-		else if(histValue <.5)
-			painter.setPen(Qt::cyan);
-		else if(histValue < .75)
-			painter.setPen(Qt::blue);
-		else painter.setPen(Qt::green);
+
+		if(!charMapAvailable)
+		{
+			double histValue = static_cast<double>(boxBuilder.histValue(boxIt->character))/boxBuilder.maxHistValue();
+			if(histValue < 0)
+				painter.setPen(Qt::black);
+			else if(histValue < .25)
+				painter.setPen(Qt::yellow);
+			else if(histValue <.5)
+				painter.setPen(Qt::cyan);
+			else if(histValue < .75)
+				painter.setPen(Qt::blue);
+			else painter.setPen(Qt::green);
+		}
+		else
+		{
+			uint code = boxIt->character.unicode();
+			if(charMap.find(code) == charMap.end())
+				painter.setPen(Qt::black);
+			else
+			{
+				QColor color = charMap[code].first;
+				painter.setPen(color);
+			}
+		}
 		
 		painter.drawRect(scaledRect);
 	}
@@ -239,6 +269,21 @@ void MainWindow::showImage()
 void MainWindow::on_genImgButton_clicked()
 {
 	QTextDocument* doc = ui->textEdit->document();	
+	QSizeF sz = doc->size();
+	if(sz.width() > this->pixmapSize.width() || sz.height() > pixmapSize.height())
+	{
+		int ret = QMessageBox::warning(this,"attention",
+								"The size of the document exceeds the size of the image, increase image?",
+		QMessageBox::Yes,QMessageBox::No);
+		if(ret == QMessageBox::Yes)
+		{
+			ui->imgXEdit->setText(QString::number(static_cast<int>(sz.width())));
+			ui->imgYEdit->setText(QString::number(static_cast<int>(sz.height())));
+			on_imgSizeSetButton_clicked();
+		}
+	}
+	
+	
 	boxBuilder.build(doc,pixmapSize);
 	showImage();
 }
@@ -344,7 +389,7 @@ void MainWindow::saveBoxAndImage()
 	QString formatLine = boxLineFormatStream.readLine();
 	
 	QString boxFileName = QString(folder + "/" + ui->outFilenameLineEdit->text() + ".box");
-	boxFileName.replace(QRegExp("\\s+"),"_");
+	boxFileName.replace(QRegExp("\\s+"),".");
 	QFile boxOut(boxFileName);
 	if(!boxOut.open(QFile::WriteOnly|QFile::Text))
 	{
@@ -393,7 +438,7 @@ void MainWindow::saveBoxAndImage()
 	imageToWrite.setDotsPerMeterY(dpm);	
 	//if(!boxBuilder.pixmap().save(folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText()))
 	QString imageFileName = folder + "/" + ui->outFilenameLineEdit->text() + "." + ui->imgFormatcomboBox->currentText();
-	imageFileName.replace(QRegExp("\\s+"),"_");
+	imageFileName.replace(QRegExp("\\s+"),".");
 	if(!imageToWrite.save(imageFileName))
 	{
 		QList<QByteArray> formats = QImageWriter::supportedImageFormats();

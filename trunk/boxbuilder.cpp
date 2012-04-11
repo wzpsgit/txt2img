@@ -45,11 +45,11 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 			else histValue = ++histogram[currentChar];
 			maxHistogramValue = std::max(maxHistogramValue,histValue);
 			
-			std::wcout << "processing \" "<<  QString(currentChar).toStdWString() << " \"... " << std::endl;
-			
-			
-			log_ << "glyphBoundingRect = (" << glyphBoundingRect.x() << "," << glyphBoundingRect.y() <<
-				"," << glyphBoundingRect.width() << "," << glyphBoundingRect.height()  << ")" << std::endl;
+			//std::wcout << "processing \" "<<  QString(currentChar).toStdWString() << " \"... " << std::endl;
+			//
+			//
+			//log_ << "glyphBoundingRect = (" << glyphBoundingRect.x() << "," << glyphBoundingRect.y() <<
+			//	"," << glyphBoundingRect.width() << "," << glyphBoundingRect.height()  << ")" << std::endl;
 				
 				
 			QRect screenBoundingRect(										
@@ -58,11 +58,11 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 									glyphBoundingRect.width()+1,
 									glyphBoundingRect.height()+1);
 				
-			log_ << "screen layout position = (" << posx << "," << posy <<  ")" << std::endl;
+/*			log_ << "screen layout position = (" << posx << "," << posy <<  ")" << std::endl;
 			log_ << "screen glyph position = (" <<  posit->x() << "," << posit->y() << ")" << std::endl;
 			
 			log_ << "screenBoundingRect = (" << screenBoundingRect.x() << "," << screenBoundingRect.y() <<
-				"," << screenBoundingRect.width() << "," << screenBoundingRect.height() << ")" << std::endl;
+				"," << screenBoundingRect.width() << "," << screenBoundingRect.height() << ")" << std::end*/;
 			
 			QRect  imageBoundingRect(QPoint(	screenBoundingRect.x(),
 												pixmap_.height()-1 - screenBoundingRect.y() - screenBoundingRect.height()+1),
@@ -71,8 +71,8 @@ void BoxBuilder::handleGlyphRun_(const QGlyphRun& glyphRun)
 												pixmap_.height() - screenBoundingRect.y()-1)
 												);
 
-			log_ << "imageBoundingRect = (" << imageBoundingRect.x() << "," << imageBoundingRect.y() <<
-				"," << imageBoundingRect.width() << "," << imageBoundingRect.height() << ")" << std::endl;
+			//log_ << "imageBoundingRect = (" << imageBoundingRect.x() << "," << imageBoundingRect.y() <<
+			//	"," << imageBoundingRect.width() << "," << imageBoundingRect.height() << ")" << std::endl;
 			
 			if(glyphBoundingRect.width()&&glyphBoundingRect.height())
 				boxes_.push_back(box(glyphIndicesToChars[*ixIt],imageBoundingRect));

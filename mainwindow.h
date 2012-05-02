@@ -85,9 +85,6 @@ private:
 	BoxBuilder boxBuilder;
 	CharMapper charMapper;
 
-	QMutex charMapperMutex;
-	const std::list<BoxBuilder::box>* pboxes;
-
 	double imageScaleFactor;
 	
 	QFileInfo textDocFileInfo;	

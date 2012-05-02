@@ -34,8 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	pixmapSize(1024,768),
 	pixmapBuf(pixmapSize),
 	boxBuilder(log_),
-	imageScaleFactor(1.),
-	pboxes(&boxBuilder.boxes())
+	imageScaleFactor(1.)
 {
 	ui->setupUi(this);
 	QApplication::addLibraryPath("./imageformats");
@@ -114,7 +113,7 @@ void MainWindow::setupActions()
 	}
 
 	updateWindowTitle();
-	charMapper.init("./charmap.txt");
+	charMapper = CharMapper("./charmap.txt");
 }
 
 MainWindow::~MainWindow()
@@ -210,7 +209,7 @@ void MainWindow::showImage()
 
 
 	//const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();	
-	const std::list<BoxBuilder::box>& boxes = *pboxes;	
+	const std::list<BoxBuilder::box>& boxes = ui->useCharMappingCheckBox->isChecked()? charMapper.boxes() : boxBuilder.boxes();
 
 	for(std::list<BoxBuilder::box>::const_iterator boxIt = boxes.begin(); boxIt != boxes.end(); ++boxIt)
 	{
@@ -263,11 +262,8 @@ void MainWindow::on_genImgButton_clicked()
 
 	boxBuilder.build(doc,pixmapSize);
 	
-	if(ui->useCharMappingCheckBox->isChecked())
-	{
-		QMutexLocker ml(&charMapperMutex);
-		charMapper.mapBoxes(boxBuilder.boxes());
-	}
+	
+	charMapper.mapBoxes(boxBuilder.boxes());	
 	showImage();
 }
 
@@ -386,7 +382,8 @@ void MainWindow::saveBoxAndImage()
 
 
 	//const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
-	const std::list<BoxBuilder::box>& boxes = *pboxes;
+	
+	const std::list<BoxBuilder::box>& boxes = ui->useCharMappingCheckBox->isChecked()? charMapper.boxes() : boxBuilder.boxes();
 	
 	std::for_each(boxes.begin(),boxes.end(),[&boxStream,&formatLine](const BoxBuilder::box& b)
 	{
@@ -537,20 +534,23 @@ void MainWindow::updateWindowTitle()
 }
 void MainWindow::on_selectCharMapButton_clicked()
 {
-	QString fileName = QFileDialog::getOpenFileName(this,"select a html file to open",".","text file (*.txt)");
-	if(fileName.length()==0) return;
-	QMutexLocker ml(&charMapperMutex);
-	charMapper.init(fileName);
-	QFileInfo fileInfo(fileName);
-	ui->charMapFileNameEdit->setText(fileInfo.fileName());
+	QString fileName = QFileDialog::getOpenFileName(this,"select the char mapping file to open",".","text file (*.txt)");
+	if(fileName.length()==0) return;	
+	try
+	{
+		charMapper = CharMapper(fileName);
+	}
+	catch(std::runtime_error& err)
+	{
+		QMessageBox::critical(this,"error parsing char mapping file",QString(err.what()));
+		return;
+	}
+	//QFileInfo fileInfo(fileName);
+	ui->charMapFileNameEdit->setText(fileName);
 }
 
 void MainWindow::on_useCharMappingCheckBox_toggled(bool checked)
-{
-	if(checked)
-		pboxes = &charMapper.boxes();
-	else 
-		pboxes = &boxBuilder.boxes();
+{	
 	ui->charMapFileNameEdit->setEnabled(checked);
 	ui->selectCharMapButton->setEnabled(checked);
 }

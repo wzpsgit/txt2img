@@ -11,6 +11,10 @@
 #include <QFileInfo>
 
 #include "boxbuilder.h"
+#include "CharMapper.h"
+
+#include <QMutex>
+#include <QMutexLocker>
 
 
 namespace Ui {
@@ -67,6 +71,10 @@ private slots:
 
 	void textDocModificationChanged(bool changed);
 
+    void on_selectCharMapButton_clicked();
+
+    void on_useCharMappingCheckBox_toggled(bool checked);
+
 private:
 	logger log_;
     Ui::MainWindow *ui;
@@ -75,6 +83,10 @@ private:
 	QSize pixmapSize;
 	QPixmap pixmapBuf;
 	BoxBuilder boxBuilder;
+	CharMapper charMapper;
+
+	QMutex charMapperMutex;
+	const std::list<BoxBuilder::box>* pboxes;
 
 	double imageScaleFactor;
 	

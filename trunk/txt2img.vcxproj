@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="boxbuilder.cpp" />
+    <ClCompile Include="CharMapper.cpp" />
     <ClCompile Include="GeneratedFiles\moc_mainwindow.cpp" />
     <ClCompile Include="GeneratedFiles\qrc_resource.cpp" />
     <ClCompile Include="main.cpp" />
@@ -129,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="boxbuilder.h" />
+    <ClInclude Include="CharMapper.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="log.h" />
   </ItemGroup>

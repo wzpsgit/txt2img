@@ -15,11 +15,9 @@ public:
 		:maxReplacementLength(0)
 	{}
 	
-	void init(const QString fileName)	
-	{
-		charMap.clear();
-		boxes_.clear();
-		maxReplacementLength = 0;
+	CharMapper(const QString fileName)	
+		:maxReplacementLength(0)
+	{		
 		readCharMap(fileName);
 	}
 	void readCharMap(const QString& fileName);
@@ -29,7 +27,7 @@ public:
 	const std::list<BoxBuilder::box>& boxes() const
 	{return boxes_;}
 private:
-	CharMapper(const CharMapper&);
+	
 
 	void bufferStep(std::list<BoxBuilder::box>& backBuffer, std::list<BoxBuilder::box>& output,const BoxBuilder::box& box);
 	void bufferStep(std::list<BoxBuilder::box>& backBuffer, std::list<BoxBuilder::box>& output, bool popFront = true);

@@ -19,7 +19,7 @@ void CharMapper::readCharMap(const QString& fileName)
 		QStringList lexems = curLine.split('=');
 		if(lexems.size() < 2)
 		{
-			QString message = "syntax error at " + count + QString(" line");
+			QString message = "syntax error at line " + QString::number(count);
 			throw std::runtime_error(message.toStdString());
 		}
 		QString replacement = *lexems.begin();

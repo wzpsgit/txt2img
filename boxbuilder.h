@@ -29,13 +29,16 @@ public:
 	
 	BoxBuilder(logger& log)
 		:log_(log)
-		,maxHistogramValue(0)
+		,maxHistogramValue(0)		
 	{}
 
 	void build(const QTextDocument* doc,const QSize& pixmapSize, const QColor& glyphColor = Qt::black);
+	
 	const std::list<box>& boxes() const
 	{return boxes_;}
-
+	
+	
+	
 	const QPixmap& pixmap() const
 	{return pixmap_;}
 
@@ -58,7 +61,7 @@ private:
 	void handleGlyphRun_(const QGlyphRun& glyphRun);	
 	logger& log_;
 	
-	std::list<box> boxes_;
+	std::list<box> boxes_;	
 	QPixmap pixmap_;
 	// a histogram for changing color depending on character's frequency
 	std::map<QChar,unsigned> histogram;
@@ -68,7 +71,6 @@ private:
 	
 	QString blockText_;
 	QPointF glyphPosition_;
-
 };
 
 #endif // BOXBUILDER_H

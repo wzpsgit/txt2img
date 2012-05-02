@@ -13,12 +13,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         boxbuilder.cpp \
-    CharTableReader.cpp
+    CharTableReader.cpp \
+    CharMapper.cpp
 
 HEADERS  += mainwindow.h \
         boxbuilder.h \
         log.h \
-    CharTableReader.h
+    CharTableReader.h \
+    CharMapper.h
 
 FORMS    += mainwindow.ui
 

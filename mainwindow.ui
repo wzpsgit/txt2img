@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>732</width>
-    <height>386</height>
+    <width>762</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -57,7 +57,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" rowspan="2">
+    <item row="2" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTextEdit" name="textEdit">
@@ -340,10 +340,53 @@
         </widget>
        </widget>
       </item>
+      <item>
+       <widget class="QSplitter" name="splitter_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QCheckBox" name="useCharMappingCheckBox">
+         <property name="text">
+          <string>Use char mapping:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="charMapFileNameEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>151</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>charmap.txt</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="selectCharMapButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>..</string>
+         </property>
+        </widget>
+       </widget>
+      </item>
      </layout>
-    </item>
-    <item row="3" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout"/>
     </item>
    </layout>
   </widget>
@@ -352,8 +395,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>732</width>
-     <height>21</height>
+     <width>762</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

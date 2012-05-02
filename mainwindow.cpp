@@ -23,8 +23,6 @@
 #include <QTextCodec>
 #include <QTextDocumentWriter> 
 
-#include "CharTableReader.h"
-
 const unsigned MainWindow::imageDPIs[] = {96,300,600};
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -36,7 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	pixmapSize(1024,768),
 	pixmapBuf(pixmapSize),
 	boxBuilder(log_),
-	imageScaleFactor(1.)	
+	imageScaleFactor(1.),
+	pboxes(&boxBuilder.boxes())
 {
 	ui->setupUi(this);
 	QApplication::addLibraryPath("./imageformats");
@@ -115,7 +114,7 @@ void MainWindow::setupActions()
 	}
 
 	updateWindowTitle();
-
+	charMapper.init("./charmap.txt");
 }
 
 MainWindow::~MainWindow()
@@ -209,20 +208,10 @@ void MainWindow::showImage()
 	QPixmap pm = boxBuilder.pixmap().scaled(pixmapBuf.size());
 	painter.drawPixmap(0,0,pm);
 
-	QString fontName = ui->fontComboBox->currentText();
-	QString charTableFileName = fontName.replace(QRegExp("\\s+"),".");
-	charTableFileName += ".tbl";
 
-	bool charMapAvailable = false;
-	std::map<uint,std::pair<QColor,QString> > charMap;
-	if(QFile(charTableFileName).exists())
-	{
-		CharTableReader ctr(charTableFileName);
-		charMap =  ctr.read();
-		charMapAvailable = true;
-	}
+	//const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();	
+	const std::list<BoxBuilder::box>& boxes = *pboxes;	
 
-	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();	
 	for(std::list<BoxBuilder::box>::const_iterator boxIt = boxes.begin(); boxIt != boxes.end(); ++boxIt)
 	{
 		double scaleFactor = static_cast<double>(pixmapBuf.size().width())/boxBuilder.pixmap().size().width();
@@ -234,8 +223,7 @@ void MainWindow::showImage()
 
 		//log_ << "scaledRect = (" << scaledRect.x() << "," << scaledRect.y() <<
 		//		"," << scaledRect.width() << "," << scaledRect.height() << ")" << std::endl;
-
-		if(!charMapAvailable)
+		if(!ui->useCharMappingCheckBox->isChecked())
 		{
 			double histValue = static_cast<double>(boxBuilder.histValue(boxIt->character))/boxBuilder.maxHistValue();
 			if(histValue < 0)
@@ -248,17 +236,7 @@ void MainWindow::showImage()
 				painter.setPen(Qt::blue);
 			else painter.setPen(Qt::green);
 		}
-		else
-		{
-			uint code = boxIt->character.unicode();
-			if(charMap.find(code) == charMap.end())
-				painter.setPen(Qt::black);
-			else
-			{
-				QColor color = charMap[code].first;
-				painter.setPen(color);
-			}
-		}
+		else painter.setPen(Qt::red);
 		
 		painter.drawRect(scaledRect);
 	}
@@ -282,9 +260,14 @@ void MainWindow::on_genImgButton_clicked()
 			on_imgSizeSetButton_clicked();
 		}
 	}
-	
-	
+
 	boxBuilder.build(doc,pixmapSize);
+	
+	if(ui->useCharMappingCheckBox->isChecked())
+	{
+		QMutexLocker ml(&charMapperMutex);
+		charMapper.mapBoxes(boxBuilder.boxes());
+	}
 	showImage();
 }
 
@@ -402,8 +385,9 @@ void MainWindow::saveBoxAndImage()
 	boxStream.setCodec(QTextCodec::codecForName("UTF-8"));
 
 
-	const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
-		
+	//const std::list<BoxBuilder::box>& boxes = boxBuilder.boxes();
+	const std::list<BoxBuilder::box>& boxes = *pboxes;
+	
 	std::for_each(boxes.begin(),boxes.end(),[&boxStream,&formatLine](const BoxBuilder::box& b)
 	{
 		QString left = QString::number(b.boundingRect.left());
@@ -550,4 +534,23 @@ QString MainWindow::getWindowTitle() const
 void MainWindow::updateWindowTitle()
 {	
 	setWindowTitle(getWindowTitle());
+}
+void MainWindow::on_selectCharMapButton_clicked()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,"select a html file to open",".","text file (*.txt)");
+	if(fileName.length()==0) return;
+	QMutexLocker ml(&charMapperMutex);
+	charMapper.init(fileName);
+	QFileInfo fileInfo(fileName);
+	ui->charMapFileNameEdit->setText(fileInfo.fileName());
+}
+
+void MainWindow::on_useCharMappingCheckBox_toggled(bool checked)
+{
+	if(checked)
+		pboxes = &charMapper.boxes();
+	else 
+		pboxes = &boxBuilder.boxes();
+	ui->charMapFileNameEdit->setEnabled(checked);
+	ui->selectCharMapButton->setEnabled(checked);
 }

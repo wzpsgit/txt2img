@@ -100,7 +100,7 @@ void BoxBuilder::build(const QTextDocument* doc,const QSize& pixmapSize, const Q
 	boxes_.clear();
 	for(QTextBlock block = doc->begin();block!=doc->end();block=block.next())
 	{
-		log_ << "BLOCK has started" << std::endl;
+		//log_ << "BLOCK has started" << std::endl;
 		QTextLayout* tl = block.layout();
 		QString blockText = block.text();
 
@@ -120,6 +120,10 @@ void BoxBuilder::build(const QTextDocument* doc,const QSize& pixmapSize, const Q
 		glyphPosition_ = tl->position();		
 		blockText_ = blockText;
 			
-		std::for_each(glyphs.begin(),glyphs.end(),[this](const QGlyphRun& grun){handleGlyphRun_(grun);});
+		std::for_each(	glyphs.begin(),
+						glyphs.end(),
+						[this](const QGlyphRun& grun)
+						{handleGlyphRun_(grun);});
 	}
+	
 }

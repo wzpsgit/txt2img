@@ -458,7 +458,7 @@ void MainWindow::on_letterSpacingSpinBox_valueChanged(double arg1)
 
 void MainWindow::textOpen()
 {
-	QString fileName = QFileDialog::getOpenFileName(this,"select a html file to open",".","HTML File (*.html)");
+	QString fileName = QFileDialog::getOpenFileName(this,"select a file to open",".","HTML File (*.html);; Text File (*.txt)");
 	if(fileName.length()==0) return;
 	textDocFileInfo.setFile(fileName);
 	QFile inputFile(fileName);
@@ -470,7 +470,17 @@ void MainWindow::textOpen()
 	QTextStream html(&inputFile);
 	QString htmlContents = html.readAll();
 	ui->textEdit->clear();
-	ui->textEdit->insertHtml(htmlContents);
+	
+	if(fileName.endsWith(".html"))
+		ui->textEdit->insertHtml(htmlContents);
+	else if(fileName.endsWith(".txt"))
+		ui->textEdit->insertPlainText(htmlContents);
+	else
+	{
+		QMessageBox::critical(this,"unsupported file","cannot open " + fileName);
+		return;
+	}
+	
 	ui->textEdit->document()->setModified(false);
 	
 }

@@ -11,7 +11,7 @@ class BoxBuilder
 public:
 	struct box
 	{
-		box(QChar character,const QRect& boundingRect)
+		box(QString character,const QRect& boundingRect)
 			:character(character)
 			,boundingRect(boundingRect)
 			
@@ -23,7 +23,7 @@ public:
 
 		{}
 		
-		QChar character;
+		QString character;
 		QRect boundingRect;
 	};	
 	
@@ -43,9 +43,9 @@ public:
 	{return pixmap_;}
 
 
-	int histValue(const QChar& character) const
+	int histValue(const QString& character) const
 	{
-		std::map<QChar,unsigned>::const_iterator it = histogram.find(character);
+		std::map<QString,unsigned>::const_iterator it = histogram.find(character);
 		if(it != histogram.end())
 			return it->second;
 		else return -1;
@@ -64,7 +64,7 @@ private:
 	std::list<box> boxes_;	
 	QPixmap pixmap_;
 	// a histogram for changing color depending on character's frequency
-	std::map<QChar,unsigned> histogram;
+	std::map<QString,unsigned> histogram;
 	unsigned maxHistogramValue;
 	// these are context variables that are changed when build method runs
 	QPen glyphPen_;

@@ -63,7 +63,8 @@ void CharMapper::bufferStep(std::list<BoxBuilder::box>& backBuffer, std::list<Bo
 			{
 				resultingRect |= box.boundingRect;
 			});
-			BoxBuilder::box outputValue(found->second,resultingRect);
+			//BoxBuilder::box outputValue(found->second,resultingRect);
+			BoxBuilder::box outputValue(bufferContents,resultingRect);
 			output.push_back(outputValue);
 
 			backBuffer.erase(backBuffer.begin(),boxItNext);
